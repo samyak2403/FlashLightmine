@@ -97,7 +97,7 @@ Add the following permissions in your `AndroidManifest.xml` file:
 
 ## Author
 
-[Samyak Kamble](https://github.com/samyak2403/IPTVmine)
+[Samyak Kamble](https://github.com/samyak2403/)
 
 ## License
 
