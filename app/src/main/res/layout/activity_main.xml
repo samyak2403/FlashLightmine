@@ -8,6 +8,30 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/frame_7"-->
+<!--        android:layout_width="50dp"-->
+<!--        android:layout_height="50dp"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        android:layout_marginStart="20dp"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:background="@drawable/setting_bg"-->
+<!--        android:layout_alignParentStart="true"-->
+<!--        android:layout_alignParentTop="true">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/settingIcon"-->
+<!--            android:layout_width="24dp"-->
+<!--            android:layout_height="24dp"-->
+<!--            android:src="@drawable/setting"-->
+<!--            android:layout_centerInParent="true"-->
+<!--           />-->
+<!--    </RelativeLayout>-->
+
+
+
     <!-- Vertical Line -->
     <View
         android:id="@+id/line_5"
@@ -43,8 +67,6 @@
         app:layout_constraintStart_toStartOf="@id/ellipse_1"
         app:layout_constraintEnd_toEndOf="@id/ellipse_1"
         />
-
-
 
 
     <View
