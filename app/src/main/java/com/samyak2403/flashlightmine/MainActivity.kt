@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
             // Update UI based on flashlight state
             binding.main.setBackgroundColor(if (isFlashlightOn) 0xFF332D2B.toInt() else 0xFF1E1E1E.toInt())
-            val statusBarColor = if (isFlashlightOn) 0xFF664D4B.toInt() else 0xFF121212.toInt()
+            val statusBarColor = if (isFlashlightOn) 0xFF1E1E1E.toInt() else 0xFF121212.toInt()
 
             binding.lightBulb.setImageResource(if (isFlashlightOn) R.drawable.bulb_on else R.drawable.bulb_off)
             binding.status.text = if (isFlashlightOn) "ON" else "OFF"
