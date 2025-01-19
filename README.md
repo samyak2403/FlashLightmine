@@ -38,7 +38,7 @@ FlashlightMine is an Android application that allows users to toggle their devic
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/samyak2403/FlashlightMine.git
+   git clone https://github.com/samyak2403/FlashLightmine.git
    ```
 
 2. Open the project in Android Studio.
