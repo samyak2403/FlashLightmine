@@ -5,21 +5,12 @@ plugins {
 
 android {
     namespace = "com.samyak2403.flashlightmine"
-    compileSdk = 35
-
-    signingConfigs {
-        create("release") {
-            storeFile = file("flashlight-release-key.jks")
-            storePassword = "flashlight123"
-            keyAlias = "flashlight"
-            keyPassword = "flashlight123"
-        }
-    }
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.samyak2403.flashlightmine"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -30,30 +21,20 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
-    bundle {
-        language {
-            enableSplit = true
-        }
-        density {
-            enableSplit = true
-        }
-        abi {
-            enableSplit = true
-        }
-    }
+    
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
