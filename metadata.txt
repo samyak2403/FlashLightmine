@@ -1,0 +1,15 @@
+Application Name: FlashLight
+Package Name: com.samyak2403.flashlightmine
+Developer: Samyak Kamble
+Source Code: https://github.com/samyak2403/FlashLightmine
+License: Apache-2.0
+Description: A simple and efficient flashlight app for Android devices. Features include a clean interface, quick toggle, and battery-efficient operation.
+
+Features:
+- Simple and intuitive user interface
+- Quick flashlight toggle
+- Battery efficient
+- No unnecessary permissions
+- Open source
+
+This app is designed to be lightweight and efficient while providing essential flashlight functionality.
