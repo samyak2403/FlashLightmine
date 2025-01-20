@@ -1,0 +1,12 @@
+FlashlightMine is a simple, efficient, and user-friendly flashlight application for Android devices. The app provides both button and shake-based controls for toggling your device's flashlight.
+
+Features:
+• Simple and intuitive user interface
+• Button-based flashlight control
+• Shake-to-toggle functionality
+• Battery efficient
+• Dynamic UI with visual feedback
+• No unnecessary permissions
+• Open source
+
+This app is designed to be lightweight and efficient while providing essential flashlight functionality with additional convenient features like shake-to-toggle.

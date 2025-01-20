@@ -1,0 +1,28 @@
+IzzyOnDroid Submission Information
+
+Package Name: com.samyak2403.flashlightmine
+License: MIT License
+Source Code: https://github.com/samyak2403/FlashLightmine
+
+Description:
+FlashlightMine is a simple, efficient, and user-friendly flashlight application for Android devices. The app provides both button and shake-based controls for toggling your device's flashlight.
+
+Key Features:
+• Simple and intuitive user interface
+• Button-based flashlight control
+• Shake-to-toggle functionality
+• Battery efficient
+• Dynamic UI with visual feedback
+• No unnecessary permissions
+• Open source
+
+Technical Details:
+• Minimum Android Version: 24 (Android 7.0)
+• Target Android Version: 35
+• Permissions Required: CAMERA, FLASHLIGHT
+• Size: ~3MB
+
+This app is designed to be lightweight and efficient while providing essential flashlight functionality with additional convenient features like shake-to-toggle.
+
+Developer: Samyak Kamble
+Website: https://github.com/samyak2403/

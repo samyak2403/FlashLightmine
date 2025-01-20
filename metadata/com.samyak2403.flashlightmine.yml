@@ -1,0 +1,27 @@
+Categories:
+  - System
+  - Utilities
+License: MIT
+AuthorName: Samyak Kamble
+AuthorEmail: samyak2403@gmail.com
+SourceCode: https://github.com/samyak2403/FlashLightmine
+IssueTracker: https://github.com/samyak2403/FlashLightmine/issues
+Changelog: https://github.com/samyak2403/FlashLightmine/releases
+
+AutoName: FlashlightMine
+
+RepoType: git
+Repo: https://github.com/samyak2403/FlashLightmine
+
+Builds:
+  - versionName: '1.0'
+    versionCode: 1
+    commit: v1.0
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.0'
+CurrentVersionCode: 1
