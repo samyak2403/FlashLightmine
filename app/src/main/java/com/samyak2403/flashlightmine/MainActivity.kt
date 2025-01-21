@@ -5,9 +5,9 @@ import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
 import com.samyak2403.flashlightmine.databinding.ActivityMainBinding
+import androidx.core.view.WindowCompat
 import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity() {
@@ -47,16 +47,9 @@ class MainActivity : AppCompatActivity() {
 
             // Update UI based on flashlight state
             binding.main.setBackgroundColor(if (isFlashlightOn) 0xFF332D2B.toInt() else 0xFF1E1E1E.toInt())
-            val statusBarColor = if (isFlashlightOn) 0xFF1E1E1E.toInt() else 0xFF121212.toInt()
 
             binding.lightBulb.setImageResource(if (isFlashlightOn) R.drawable.bulb_on else R.drawable.bulb_off)
             binding.status.text = if (isFlashlightOn) "ON" else "OFF"
-
-
-
-
-            // Update status bar color
-            window.statusBarColor = statusBarColor
 
             // Change ellipses tint dynamically
             setEllipsesTint(isFlashlightOn)
