@@ -41,11 +41,11 @@
 }
 
 # Keep Activity class names for screen navigation
--keepnames class * extends android.app.Activity
--keepnames class * extends androidx.appcompat.app.AppCompatActivity
+-keep,allowshrinking class * extends android.app.Activity { <init>(); }
+-keep,allowshrinking class * extends androidx.appcompat.app.AppCompatActivity { <init>(); }
 
 # Keep custom exceptions
--keep public class * extends java.lang.Exception
+-keep public class * extends java.lang.Exception { <init>(); }
 
 # Keep the BuildConfig
 -keep class *.BuildConfig { *; }
@@ -59,10 +59,10 @@
 -renamesourcefileattribute SourceFile
 
 # Keep any classes used in AndroidManifest.xml
--keep public class * extends android.app.Application
--keep public class * extends android.app.Service
--keep public class * extends android.content.BroadcastReceiver
--keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.Application { <init>(); }
+-keep public class * extends android.app.Service { <init>(); }
+-keep public class * extends android.content.BroadcastReceiver { <init>(); }
+-keep public class * extends android.content.ContentProvider { <init>(); }
 
 # Keep onClick handlers
 -keepclassmembers class * extends android.content.Context {

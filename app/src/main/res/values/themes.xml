@@ -4,6 +4,7 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="statusBarBackground">#1E1E1E</item>
+        <item name="android:statusBarColor">#1E1E1E</item>
     </style>
 
     <style name="Theme.FlashLightmine" parent="Base.Theme.FlashLightmine" />
