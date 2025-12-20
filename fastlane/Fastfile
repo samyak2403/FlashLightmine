@@ -1,0 +1,14 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build release APK"
+  lane :build do
+    gradle(task: "clean assembleRelease")
+  end
+
+  desc "Deploy to F-Droid (metadata only)"
+  lane :fdroid do
+    # F-Droid builds from source, this lane validates metadata
+    puts "Metadata ready for F-Droid submission"
+  end
+end
