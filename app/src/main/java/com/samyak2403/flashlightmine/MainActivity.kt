@@ -1,10 +1,16 @@
 package com.samyak2403.flashlightmine
 
+import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
+import android.view.animation.OvershootInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.google.android.material.snackbar.Snackbar
 import com.samyak2403.flashlightmine.databinding.ActivityMainBinding
 import androidx.core.view.WindowCompat
@@ -17,6 +23,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cameraId: String
 
     private lateinit var binding: ActivityMainBinding
+    
+    // Pull rope animation variables
+    private var initialY = 0f
+    private var isDragging = false
+    private val pullThreshold = 100f // Minimum pull distance to trigger toggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +48,119 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
 
+        // Setup pull rope animation on line_5 and lightBulb
+        setupPullRopeAnimation()
+        
         setupShakeListener()
+    }
+    
+    private fun setupPullRopeAnimation() {
+        // Set pivot point to top of line_5 so it stretches from top
+        binding.line5.pivotY = 0f
+        
+        // Make line_5 and lightBulb respond to touch for pull animation
+        val pullViews = listOf(binding.line5, binding.lightBulb)
+        
+        pullViews.forEach { view ->
+            view.setOnTouchListener { v, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        initialY = event.rawY
+                        isDragging = true
+                        true
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        if (isDragging) {
+                            val deltaY = event.rawY - initialY
+                            // Only allow pulling down (positive deltaY)
+                            if (deltaY > 0) {
+                                // Calculate stretch factor for line_5 (stays anchored at top, stretches down)
+                                val stretchFactor = 1f + (deltaY * 0.003f) // Subtle stretch
+                                binding.line5.scaleY = stretchFactor
+                                
+                                // Move lightBulb and ellipses down
+                                binding.lightBulb.translationY = deltaY * 0.5f
+                                binding.ellipse1.translationY = deltaY * 0.5f
+                                binding.ellipse2.translationY = deltaY * 0.5f
+                                binding.ellipse3.translationY = deltaY * 0.5f
+                                binding.ellipse4.translationY = deltaY * 0.5f
+                            }
+                        }
+                        true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        if (isDragging) {
+                            val deltaY = event.rawY - initialY
+                            isDragging = false
+                            
+                            // If pulled enough, toggle the flashlight
+                            if (deltaY > pullThreshold) {
+                                toggleFlashlight()
+                                playLightBulbAnimation()
+                            }
+                            
+                            // Snap back with spring animation
+                            snapBackWithSpring()
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+    
+    private fun snapBackWithSpring() {
+        // Spring animation for line_5 scaleY (back to normal height)
+        val springLineScale = SpringAnimation(binding.line5, SpringAnimation.SCALE_Y, 1f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        
+        // Spring animation for lightBulb
+        val springBulb = SpringAnimation(binding.lightBulb, SpringAnimation.TRANSLATION_Y, 0f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        
+        // Spring animations for ellipses
+        val springEllipse1 = SpringAnimation(binding.ellipse1, SpringAnimation.TRANSLATION_Y, 0f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        val springEllipse2 = SpringAnimation(binding.ellipse2, SpringAnimation.TRANSLATION_Y, 0f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        val springEllipse3 = SpringAnimation(binding.ellipse3, SpringAnimation.TRANSLATION_Y, 0f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        val springEllipse4 = SpringAnimation(binding.ellipse4, SpringAnimation.TRANSLATION_Y, 0f).apply {
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        
+        // Start all spring animations
+        springLineScale.start()
+        springBulb.start()
+        springEllipse1.start()
+        springEllipse2.start()
+        springEllipse3.start()
+        springEllipse4.start()
+    }
+    
+    private fun playLightBulbAnimation() {
+        // Scale pulse animation on lightBulb when toggled
+        val scaleX = ObjectAnimator.ofFloat(binding.lightBulb, View.SCALE_X, 1f, 1.2f, 1f)
+        val scaleY = ObjectAnimator.ofFloat(binding.lightBulb, View.SCALE_Y, 1f, 1.2f, 1f)
+        
+        AnimatorSet().apply {
+            playTogether(scaleX, scaleY)
+            duration = 300
+            interpolator = OvershootInterpolator()
+            start()
+        }
     }
 
     private fun toggleFlashlight() {

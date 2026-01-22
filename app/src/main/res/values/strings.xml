@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FlashLightmine</string>
+    <string name="flashlight_bulb">Flashlight toggle button</string>
 </resources>
