@@ -58,53 +58,62 @@ class MainActivity : AppCompatActivity() {
         // Set pivot point to top of line_5 so it stretches from top
         binding.line5.pivotY = 0f
         
-        // Make line_5 and lightBulb respond to touch for pull animation
-        val pullViews = listOf(binding.line5, binding.lightBulb)
-        
-        pullViews.forEach { view ->
-            view.setOnTouchListener { v, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        initialY = event.rawY
-                        isDragging = true
-                        true
-                    }
-                    MotionEvent.ACTION_MOVE -> {
-                        if (isDragging) {
-                            val deltaY = event.rawY - initialY
-                            // Only allow pulling down (positive deltaY)
-                            if (deltaY > 0) {
-                                // Calculate stretch factor for line_5 (stays anchored at top, stretches down)
-                                val stretchFactor = 1f + (deltaY * 0.003f) // Subtle stretch
-                                binding.line5.scaleY = stretchFactor
+        // Get the original height of line_5 for calculating stretch offset
+        binding.line5.post {
+            val lineHeight = binding.line5.height.toFloat()
+            
+            // Make line_5 and lightBulb respond to touch for pull animation
+            val pullViews = listOf(binding.line5, binding.lightBulb)
+            
+            pullViews.forEach { view ->
+                view.setOnTouchListener { v, event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            initialY = event.rawY
+                            isDragging = true
+                            true
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            if (isDragging) {
+                                val deltaY = event.rawY - initialY
+                                // Only allow pulling down (positive deltaY)
+                                if (deltaY > 0) {
+                                    // Calculate stretch factor for line_5 (stays anchored at top, stretches down)
+                                    val stretchFactor = 1f + (deltaY / lineHeight) * 0.5f
+                                    binding.line5.scaleY = stretchFactor
+                                    
+                                    // Calculate how much the bottom of line_5 moved due to stretch
+                                    // bottomOffset = lineHeight * (stretchFactor - 1)
+                                    val bottomOffset = lineHeight * (stretchFactor - 1f)
+                                    
+                                    // Move lightBulb and ellipses to stay connected to rope end
+                                    binding.lightBulb.translationY = bottomOffset
+                                    binding.ellipse1.translationY = bottomOffset
+                                    binding.ellipse2.translationY = bottomOffset
+                                    binding.ellipse3.translationY = bottomOffset
+                                    binding.ellipse4.translationY = bottomOffset
+                                }
+                            }
+                            true
+                        }
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                            if (isDragging) {
+                                val deltaY = event.rawY - initialY
+                                isDragging = false
                                 
-                                // Move lightBulb and ellipses down
-                                binding.lightBulb.translationY = deltaY * 0.5f
-                                binding.ellipse1.translationY = deltaY * 0.5f
-                                binding.ellipse2.translationY = deltaY * 0.5f
-                                binding.ellipse3.translationY = deltaY * 0.5f
-                                binding.ellipse4.translationY = deltaY * 0.5f
+                                // If pulled enough, toggle the flashlight
+                                if (deltaY > pullThreshold) {
+                                    toggleFlashlight()
+                                    playLightBulbAnimation()
+                                }
+                                
+                                // Snap back with spring animation
+                                snapBackWithSpring()
                             }
+                            true
                         }
-                        true
+                        else -> false
                     }
-                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        if (isDragging) {
-                            val deltaY = event.rawY - initialY
-                            isDragging = false
-                            
-                            // If pulled enough, toggle the flashlight
-                            if (deltaY > pullThreshold) {
-                                toggleFlashlight()
-                                playLightBulbAnimation()
-                            }
-                            
-                            // Snap back with spring animation
-                            snapBackWithSpring()
-                        }
-                        true
-                    }
-                    else -> false
                 }
             }
         }
