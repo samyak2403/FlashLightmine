@@ -2,6 +2,7 @@ package com.samyak2403.flashlightmine
 
 import android.animation.ObjectAnimator
 import android.animation.AnimatorSet
+import android.content.Context
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
@@ -11,6 +12,8 @@ import android.view.animation.OvershootInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.dynamicanimation.animation.SpringAnimation
 import androidx.dynamicanimation.animation.SpringForce
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetView
 import com.google.android.material.snackbar.Snackbar
 import com.samyak2403.flashlightmine.databinding.ActivityMainBinding
 import androidx.core.view.WindowCompat
@@ -28,6 +31,11 @@ class MainActivity : AppCompatActivity() {
     private var initialY = 0f
     private var isDragging = false
     private val pullThreshold = 100f // Minimum pull distance to trigger toggle
+    
+    companion object {
+        private const val PREFS_NAME = "FlashLightPrefs"
+        private const val KEY_FIRST_LAUNCH = "isFirstLaunch"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +60,52 @@ class MainActivity : AppCompatActivity() {
         setupPullRopeAnimation()
         
         setupShakeListener()
+        
+        // Show tutorial on first launch
+        showTutorialIfFirstLaunch()
+    }
+    
+    private fun showTutorialIfFirstLaunch() {
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
+        
+        if (isFirstLaunch) {
+            // Wait for views to be laid out
+            binding.lightBulb.post {
+                showLightBulbTutorial()
+            }
+            
+            // Mark as not first launch anymore
+            prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
+        }
+    }
+    
+    private fun showLightBulbTutorial() {
+        TapTargetView.showFor(this,
+            TapTarget.forView(binding.lightBulb, 
+                "Pull to LightBulb Flashlight",
+                "Drag the bulb down and release to turn the flashlight ON or OFF")
+                .outerCircleColor(R.color.tutorial_outer_circle)
+                .outerCircleAlpha(0.96f)
+                .targetCircleColor(android.R.color.white)
+                .titleTextSize(24)
+                .titleTextColor(android.R.color.white)
+                .descriptionTextSize(16)
+                .descriptionTextColor(android.R.color.white)
+                .textColor(android.R.color.white)
+                .dimColor(android.R.color.black)
+                .drawShadow(true)
+                .cancelable(true)
+                .tintTarget(false)
+                .transparentTarget(true)
+                .targetRadius(80),
+            object : TapTargetView.Listener() {
+                override fun onTargetClick(view: TapTargetView) {
+                    super.onTargetClick(view)
+                    // Tutorial dismissed
+                }
+            }
+        )
     }
     
     private fun setupPullRopeAnimation() {

@@ -6,4 +6,7 @@
     <color name="orange">#FF9736</color>
     <color name="background_dark">#1E1E1E</color>
     <color name="background_on">#332D2B</color>
+    
+    <!-- Tutorial colors -->
+    <color name="tutorial_outer_circle">#FF9736</color>
 </resources>
