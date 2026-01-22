@@ -12,12 +12,14 @@ FlashlightMine is an Android application that allows users to toggle their devic
 ## Features
 
 - **Flashlight Control**: Turn the flashlight ON/OFF with a button.
+- **Pull Rope Interaction**: Drag the lightbulb or line like a pull-cord switch to toggle the flashlight with realistic spring animations.
 - **Shake Detection**: Shake your device to toggle the flashlight.
+- **Interactive Tutorial**: A spotlight tutorial guides first-time users on how to use the pull-to-toggle feature.
 - **Dynamic UI**: 
   - Changes the background color and light bulb icon based on flashlight status.
   - Updates the status bar color dynamically.
   - Applies dynamic tint to UI elements for better visual feedback.
-- **Snackbar Notifications**: Inform users about additional functionalities (e.g., shake detection).
+- **Snackbar Notifications**: Inform users about additional functionalities.
 
 ## Screenshots
 
@@ -25,7 +27,7 @@ FlashlightMine is an Android application that allows users to toggle their devic
   <tr>
     <td><img src="images/1.png" width="250px" /></td>
     <td><img src="images/2.png" width="250px" /></td>
-
+  </tr>
 </table>
     
 ## Getting Started
@@ -55,17 +57,28 @@ The primary activity handles the following:
    - Toggles the flashlight using the `CameraManager` API.
    - Updates the UI to reflect the flashlight status.
 
-2. **Shake Listener**:
+2. **Pull Rope Animation**:
+   - Implements a drag-and-release mechanic using `OnTouchListener`.
+   - Uses `SpringAnimation` for realistic bounce-back effects.
+   - Stretches the rope (`line_5`) and moves the lightbulb in sync for a fluid physics-based feel.
+
+3. **Showcase Tutorial**:
+   - Displays a feature discovery overlay using `TapTargetView` on the first launch.
+
+4. **Shake Listener**:
    - Uses the accelerometer sensor to detect device shakes.
    - Toggles the flashlight if a shake is detected above the threshold (2.5 G).
 
-3. **Dynamic UI Updates**:
+5. **Dynamic UI Updates**:
    - Changes background color and status dynamically.
    - Updates the tint of decorative ellipses based on flashlight state.
 
 ### Key Functions
 
 - `toggleFlashlight()`: Toggles the flashlight and updates the UI.
+- `setupPullRopeAnimation()`: Configures touch listeners and physics-based animations for the pull-cord interaction.
+- `snapBackWithSpring()`: Handles the spring snap-back animation for the rope and bulb.
+- `showTutorialIfFirstLaunch()`: Checks shared preferences to display the onboarding tutorial once.
 - `setupShakeListener()`: Registers a sensor listener to detect shakes.
 - `setEllipsesTint(isFlashlightOn: Boolean)`: Updates the tint of UI ellipses.
 
@@ -75,6 +88,8 @@ This app uses the following Android libraries:
 
 - [Material Components](https://material.io/develop/android) for Snackbar and UI design.
 - [Camera2 API](https://developer.android.com/reference/android/hardware/camera2/package-summary) for flashlight control.
+- [Dynamic Animation](https://developer.android.com/jetpack/androidx/releases/dynamicanimation) for spring physics animations.
+- [TapTargetView](https://github.com/KeepSafe/TapTargetView) for feature discovery tutorials.
 
 ## Permissions
 
@@ -88,8 +103,9 @@ Add the following permissions in your `AndroidManifest.xml` file:
 ## How to Use
 
 1. Launch the app.
-2. Tap the ON/OFF button to toggle the flashlight.
-3. Shake your device to toggle the flashlight dynamically.
+2. **Pull the Rope**: specificially, drag the lightbulb down and release it to toggle the flashlight.
+3. Tap the ON/OFF button to toggle the flashlight.
+4. Shake your device to toggle the flashlight dynamically.
 
 ## Future Enhancements
 
