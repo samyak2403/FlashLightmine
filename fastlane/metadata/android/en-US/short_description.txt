@@ -1,1 +1,0 @@
-Simple and efficient flashlight app with shake-to-toggle feature

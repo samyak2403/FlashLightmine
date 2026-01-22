@@ -1,2 +1,0 @@
-# Feature graphic placeholder
-# Add featureGraphic.png (1024x500) to images/ folder for F-Droid store listing

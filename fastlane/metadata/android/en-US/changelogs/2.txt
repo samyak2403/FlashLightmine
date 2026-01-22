@@ -1,6 +1,0 @@
-Version 1.1 changes:
-* Improved UI responsiveness
-* Removed deprecated status bar code
-* Better error handling
-* Performance optimizations
-* Bug fixes
