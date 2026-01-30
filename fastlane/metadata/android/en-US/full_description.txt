@@ -1,0 +1,15 @@
+FlashlightMine is a simple yet elegant Android flashlight application with unique interactive features.
+
+Features:
+• Flashlight Control: Turn the flashlight ON/OFF with a simple button tap
+• Pull Rope Interaction: Drag the lightbulb or line like a pull-cord switch to toggle the flashlight with realistic spring animations
+• Shake Detection: Shake your device to toggle the flashlight - perfect for quick access
+• Interactive Tutorial: A spotlight tutorial guides first-time users on how to use the pull-to-toggle feature
+• Dynamic UI: Background color and light bulb icon change based on flashlight status with beautiful visual feedback
+
+Privacy Focused:
+• No internet permission required
+• No ads or tracking
+• Completely open source
+
+This app uses the Camera2 API for flashlight control and includes spring physics animations for a premium user experience.

@@ -1,0 +1,6 @@
+Version 1.1:
+• Added pull rope animation with spring physics for toggling flashlight
+• Implemented shake detection to toggle flashlight
+• Added interactive tutorial for first-time users
+• Dynamic UI updates based on flashlight status
+• Performance improvements and bug fixes
