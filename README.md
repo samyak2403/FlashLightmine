@@ -27,6 +27,8 @@ FlashlightMine is an Android application that allows users to toggle their devic
   <tr>
     <td><img src="images/1.png" width="250px" /></td>
     <td><img src="images/2.png" width="250px" /></td>
+    <td><img src="images/preview.gif" align="right" width="320"/>
+</td>
   </tr>
 </table>
     
