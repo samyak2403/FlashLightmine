@@ -1,4 +1,1 @@
-Version 1.0:
-• Initial release
-• Basic flashlight toggle functionality
-• Beautiful UI with light bulb animation
+Initial release following F-Droid submission requirements. Includes pull rope animation, shake detection, and interactive tutorial.
