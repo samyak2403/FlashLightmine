@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.samyak2403.flashlightmine"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.samyak2403.flashlightmine"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 4
-        versionName = "1.2.1"
+        targetSdk = 36
+        versionCode = 5
+        versionName = "1.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +39,11 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+    // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 }
 
