@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -11,8 +10,8 @@ android {
         applicationId = "com.samyak2403.flashlightmine"
         minSdk = 24
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.2.2"
+        versionCode = 6
+        versionName = "1.2.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,9 +32,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    kotlin( {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    })
 
     buildFeatures {
         viewBinding = true
@@ -54,8 +55,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
-    implementation("com.getkeepsafe.taptargetview:taptargetview:1.13.3")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.1.0")
+    implementation("com.getkeepsafe.taptargetview:taptargetview:1.15.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
