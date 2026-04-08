@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     private var isFlashlightOn = false
     private lateinit var cameraManager: CameraManager
-    private lateinit var cameraId: String
+    private var cameraId: String? = null
 
     private lateinit var binding: ActivityMainBinding
     
@@ -44,7 +44,18 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize CameraManager
         cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
-        cameraId = cameraManager.cameraIdList[0]
+        try {
+            for (id in cameraManager.cameraIdList) {
+                val characteristics = cameraManager.getCameraCharacteristics(id)
+                val hasFlash = characteristics.get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+                if (hasFlash) {
+                    cameraId = id
+                    break
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         // Toggle flashlight using Shake or On/Off Button
         binding.offButton.setOnClickListener {
@@ -72,7 +83,9 @@ class MainActivity : AppCompatActivity() {
         if (isFirstLaunch) {
             // Wait for views to be laid out
             binding.lightBulb.post {
-                showLightBulbTutorial()
+                if (!isFinishing && !isDestroyed) {
+                    showLightBulbTutorial()
+                }
             }
             
             // Mark as not first launch anymore
@@ -227,9 +240,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun toggleFlashlight() {
+        val currentCameraId = cameraId ?: run {
+            Snackbar.make(binding.root, "No flashlight available on this device", Snackbar.LENGTH_SHORT).show()
+            return
+        }
         try {
             isFlashlightOn = !isFlashlightOn
-            cameraManager.setTorchMode(cameraId, isFlashlightOn)
+            cameraManager.setTorchMode(currentCameraId, isFlashlightOn)
 
             // Update UI based on flashlight state
             binding.main.setBackgroundColor(if (isFlashlightOn) 0xFF332D2B.toInt() else 0xFF1E1E1E.toInt())
@@ -247,7 +264,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupShakeListener() {
         val sensorManager = getSystemService(SENSOR_SERVICE) as android.hardware.SensorManager
         val accelerometer =
-            sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)
+            sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER) ?: return
 
         val shakeListener = object : android.hardware.SensorEventListener {
             override fun onSensorChanged(event: android.hardware.SensorEvent?) {
