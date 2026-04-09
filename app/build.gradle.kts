@@ -10,8 +10,8 @@ android {
         applicationId = "com.samyak2403.flashlightmine"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.2.2.1"
+        versionCode = 7
+        versionName = "1.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
