@@ -1,303 +1,167 @@
 package com.samyak2403.flashlightmine
 
-import android.animation.ObjectAnimator
-import android.animation.AnimatorSet
 import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
-import android.view.MotionEvent
-import android.view.View
-import android.view.animation.OvershootInterpolator
-import androidx.appcompat.app.AppCompatActivity
-import androidx.dynamicanimation.animation.SpringAnimation
-import androidx.dynamicanimation.animation.SpringForce
-import com.getkeepsafe.taptargetview.TapTarget
-import com.getkeepsafe.taptargetview.TapTargetView
-import com.google.android.material.snackbar.Snackbar
-import com.samyak2403.flashlightmine.databinding.ActivityMainBinding
-import androidx.core.view.WindowCompat
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.samyak2403.flashlightmine.ui.FlashlightScreen
+import com.samyak2403.flashlightmine.ui.TutorialOverlay
+import com.samyak2403.flashlightmine.ui.theme.FlashLightmineTheme
 import kotlin.math.sqrt
 
-class MainActivity : AppCompatActivity() {
-
-    private var isFlashlightOn = false
-    private lateinit var cameraManager: CameraManager
-    private var cameraId: String? = null
-
-    private lateinit var binding: ActivityMainBinding
-    
-    // Pull rope animation variables
-    private var initialY = 0f
-    private var isDragging = false
-    private val pullThreshold = 100f // Minimum pull distance to trigger toggle
-    
-    companion object {
-        private const val PREFS_NAME = "FlashLightPrefs"
-        private const val KEY_FIRST_LAUNCH = "isFirstLaunch"
-    }
+class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Initialize CameraManager
-        cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
-        try {
-            for (id in cameraManager.cameraIdList) {
-                val characteristics = cameraManager.getCameraCharacteristics(id)
-                val hasFlash = characteristics.get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
-                if (hasFlash) {
-                    cameraId = id
-                    break
-                }
+        enableEdgeToEdge()
+        setContent {
+            FlashLightmineTheme {
+                FlashlightApp()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        // Toggle flashlight using Shake or On/Off Button
-        binding.offButton.setOnClickListener {
-            toggleFlashlight()
-        }
-
-        binding.shakeText.setOnClickListener {
-            Snackbar.make(it, "Shake functionality can be implemented!", Snackbar.LENGTH_SHORT)
-                .show()
-        }
-
-        // Setup pull rope animation on line_5 and lightBulb
-        setupPullRopeAnimation()
-        
-        setupShakeListener()
-        
-        // Show tutorial on first launch
-        showTutorialIfFirstLaunch()
-    }
-    
-    private fun showTutorialIfFirstLaunch() {
-        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true)
-        
-        if (isFirstLaunch) {
-            // Wait for views to be laid out
-            binding.lightBulb.post {
-                if (!isFinishing && !isDestroyed) {
-                    showLightBulbTutorial()
-                }
-            }
-            
-            // Mark as not first launch anymore
-            prefs.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
         }
     }
-    
-    private fun showLightBulbTutorial() {
-        TapTargetView.showFor(this,
-            TapTarget.forView(binding.lightBulb, 
-                "Pull to LightBulb Flashlight",
-                "Drag the bulb down and release to turn the flashlight ON or OFF")
-                .outerCircleColor(R.color.tutorial_outer_circle)
-                .outerCircleAlpha(0.96f)
-                .targetCircleColor(android.R.color.white)
-                .titleTextSize(24)
-                .titleTextColor(android.R.color.white)
-                .descriptionTextSize(16)
-                .descriptionTextColor(android.R.color.white)
-                .textColor(android.R.color.white)
-                .dimColor(android.R.color.black)
-                .drawShadow(true)
-                .cancelable(true)
-                .tintTarget(false)
-                .transparentTarget(true)
-                .targetRadius(80),
-            object : TapTargetView.Listener() {
-                override fun onTargetClick(view: TapTargetView) {
-                    super.onTargetClick(view)
-                    // Tutorial dismissed
-                }
-            }
+}
+
+@androidx.compose.runtime.Composable
+private fun FlashlightApp() {
+    val context = LocalContext.current
+    val torch = remember { TorchController(context) }
+
+    var isOn by remember { mutableStateOf(false) }
+
+    val toggle: () -> Unit = {
+        val next = !isOn
+        val success = torch.setTorch(next)
+        if (success) {
+            isOn = next
+        } else {
+            Toast.makeText(context, "No flashlight available on this device", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Turn torch off when leaving the composition to avoid a stuck light.
+    DisposableEffect(Unit) {
+        onDispose {
+            torch.setTorch(false)
+        }
+    }
+
+    // Shake to toggle — same 2.5g threshold as before.
+    ShakeDetector(onShake = toggle)
+
+    // First-launch tutorial overlay.
+    val prefs = remember {
+        context.getSharedPreferences(FlashlightPrefs.NAME, Context.MODE_PRIVATE)
+    }
+    var showTutorial by remember {
+        mutableStateOf(prefs.getBoolean(FlashlightPrefs.KEY_FIRST_LAUNCH, true))
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        FlashlightScreen(
+            isFlashlightOn = isOn,
+            onToggle = toggle,
         )
-    }
-    
-    private fun setupPullRopeAnimation() {
-        // Set pivot point to top of line_5 so it stretches from top
-        binding.line5.pivotY = 0f
-        
-        // Get the original height of line_5 for calculating stretch offset
-        binding.line5.post {
-            val lineHeight = binding.line5.height.toFloat()
-            
-            // Make line_5 and lightBulb respond to touch for pull animation
-            val pullViews = listOf(binding.line5, binding.lightBulb)
-            
-            pullViews.forEach { view ->
-                view.setOnTouchListener { v, event ->
-                    when (event.action) {
-                        MotionEvent.ACTION_DOWN -> {
-                            initialY = event.rawY
-                            isDragging = true
-                            true
-                        }
-                        MotionEvent.ACTION_MOVE -> {
-                            if (isDragging) {
-                                val deltaY = event.rawY - initialY
-                                // Only allow pulling down (positive deltaY)
-                                if (deltaY > 0) {
-                                    // Calculate stretch factor for line_5 (stays anchored at top, stretches down)
-                                    val stretchFactor = 1f + (deltaY / lineHeight) * 0.5f
-                                    binding.line5.scaleY = stretchFactor
-                                    
-                                    // Calculate how much the bottom of line_5 moved due to stretch
-                                    // bottomOffset = lineHeight * (stretchFactor - 1)
-                                    val bottomOffset = lineHeight * (stretchFactor - 1f)
-                                    
-                                    // Move lightBulb and ellipses to stay connected to rope end
-                                    binding.lightBulb.translationY = bottomOffset
-                                    binding.ellipse1.translationY = bottomOffset
-                                    binding.ellipse2.translationY = bottomOffset
-                                    binding.ellipse3.translationY = bottomOffset
-                                    binding.ellipse4.translationY = bottomOffset
-                                }
-                            }
-                            true
-                        }
-                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            if (isDragging) {
-                                val deltaY = event.rawY - initialY
-                                isDragging = false
-                                
-                                // If pulled enough, toggle the flashlight
-                                if (deltaY > pullThreshold) {
-                                    toggleFlashlight()
-                                    playLightBulbAnimation()
-                                }
-                                
-                                // Snap back with spring animation
-                                snapBackWithSpring()
-                            }
-                            true
-                        }
-                        else -> false
-                    }
-                }
-            }
+        if (showTutorial) {
+            TutorialOverlay(onDismiss = {
+                showTutorial = false
+                prefs.edit().putBoolean(FlashlightPrefs.KEY_FIRST_LAUNCH, false).apply()
+            })
         }
     }
-    
-    private fun snapBackWithSpring() {
-        // Spring animation for line_5 scaleY (back to normal height)
-        val springLineScale = SpringAnimation(binding.line5, SpringAnimation.SCALE_Y, 1f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+}
+
+private object FlashlightPrefs {
+    const val NAME = "FlashLightPrefs"
+    const val KEY_FIRST_LAUNCH = "isFirstLaunch"
+}
+
+/**
+ * Wraps [CameraManager] torch access. Returns false when the device has no
+ * flash-capable camera or the operation fails.
+ */
+private class TorchController(context: Context) {
+    private val cameraManager =
+        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    private val cameraId: String? = findFlashCameraId()
+
+    private fun findFlashCameraId(): String? = try {
+        cameraManager.cameraIdList.firstOrNull { id ->
+            cameraManager.getCameraCharacteristics(id)
+                .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
         }
-        
-        // Spring animation for lightBulb
-        val springBulb = SpringAnimation(binding.lightBulb, SpringAnimation.TRANSLATION_Y, 0f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
-        }
-        
-        // Spring animations for ellipses
-        val springEllipse1 = SpringAnimation(binding.ellipse1, SpringAnimation.TRANSLATION_Y, 0f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
-        }
-        val springEllipse2 = SpringAnimation(binding.ellipse2, SpringAnimation.TRANSLATION_Y, 0f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
-        }
-        val springEllipse3 = SpringAnimation(binding.ellipse3, SpringAnimation.TRANSLATION_Y, 0f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
-        }
-        val springEllipse4 = SpringAnimation(binding.ellipse4, SpringAnimation.TRANSLATION_Y, 0f).apply {
-            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
-            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
-        }
-        
-        // Start all spring animations
-        springLineScale.start()
-        springBulb.start()
-        springEllipse1.start()
-        springEllipse2.start()
-        springEllipse3.start()
-        springEllipse4.start()
-    }
-    
-    private fun playLightBulbAnimation() {
-        // Scale pulse animation on lightBulb when toggled
-        val scaleX = ObjectAnimator.ofFloat(binding.lightBulb, View.SCALE_X, 1f, 1.2f, 1f)
-        val scaleY = ObjectAnimator.ofFloat(binding.lightBulb, View.SCALE_Y, 1f, 1.2f, 1f)
-        
-        AnimatorSet().apply {
-            playTogether(scaleX, scaleY)
-            duration = 300
-            interpolator = OvershootInterpolator()
-            start()
-        }
+    } catch (e: CameraAccessException) {
+        e.printStackTrace()
+        null
     }
 
-    private fun toggleFlashlight() {
-        val currentCameraId = cameraId ?: run {
-            Snackbar.make(binding.root, "No flashlight available on this device", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-        try {
-            isFlashlightOn = !isFlashlightOn
-            cameraManager.setTorchMode(currentCameraId, isFlashlightOn)
-
-            // Update UI based on flashlight state
-            binding.main.setBackgroundColor(if (isFlashlightOn) 0xFF332D2B.toInt() else 0xFF1E1E1E.toInt())
-
-            binding.lightBulb.setImageResource(if (isFlashlightOn) R.drawable.bulb_on else R.drawable.bulb_off)
-            binding.status.text = if (isFlashlightOn) "ON" else "OFF"
-
-            // Change ellipses tint dynamically
-            setEllipsesTint(isFlashlightOn)
+    fun setTorch(enabled: Boolean): Boolean {
+        val id = cameraId ?: return false
+        return try {
+            cameraManager.setTorchMode(id, enabled)
+            true
         } catch (e: CameraAccessException) {
             e.printStackTrace()
+            false
         }
     }
+}
 
-    private fun setupShakeListener() {
-        val sensorManager = getSystemService(SENSOR_SERVICE) as android.hardware.SensorManager
-        val accelerometer =
-            sensorManager.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER) ?: return
+/**
+ * Registers an accelerometer listener while the composable is in the composition
+ * and invokes [onShake] when the acceleration exceeds ~2.5g.
+ */
+@androidx.compose.runtime.Composable
+private fun ShakeDetector(onShake: () -> Unit) {
+    val context = LocalContext.current
+    val currentOnShake by rememberUpdatedState(onShake)
 
-        val shakeListener = object : android.hardware.SensorEventListener {
-            override fun onSensorChanged(event: android.hardware.SensorEvent?) {
+    DisposableEffect(Unit) {
+        val sensorManager =
+            context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+            ?: return@DisposableEffect onDispose { }
+
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent?) {
                 if (event == null) return
-
                 val x = event.values[0]
                 val y = event.values[1]
                 val z = event.values[2]
-
-                val gForce =
-                    sqrt(x * x + y * y + z * z) / android.hardware.SensorManager.GRAVITY_EARTH
-                if (gForce > 2.5) { // Shake threshold
-                    toggleFlashlight()
-                }
+                val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
+                if (gForce > 2.5f) currentOnShake()
             }
 
-            override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) {
-                // Not used
-            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
         }
 
         sensorManager.registerListener(
-            shakeListener,
+            listener,
             accelerometer,
-            android.hardware.SensorManager.SENSOR_DELAY_UI
+            SensorManager.SENSOR_DELAY_UI,
         )
-    }
 
-    private fun setEllipsesTint(isFlashlightOn: Boolean) {
-        val tintColor = if (isFlashlightOn) 0xFFFFA500.toInt() else 0xFF1E1E1E.toInt()
-        binding.ellipse1.background.setTint(tintColor)
-        binding.ellipse2.background.setTint(tintColor)
-        binding.ellipse3.background.setTint(tintColor)
-        binding.ellipse4.background.setTint(tintColor)
+        onDispose {
+            sensorManager.unregisterListener(listener)
+        }
     }
 }

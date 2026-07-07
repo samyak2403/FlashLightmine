@@ -1,10 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme. Compose handles the actual UI colors; this only
+         provides the initial window background and status bar tint. -->
     <style name="Base.Theme.FlashLightmine" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="statusBarBackground">#1E1E1E</item>
-        <item name="android:statusBarColor">#1E1E1E</item>
+        <item name="android:statusBarColor">@color/background_dark</item>
+        <item name="android:windowBackground">@color/background_dark</item>
     </style>
 
     <style name="Theme.FlashLightmine" parent="Base.Theme.FlashLightmine" />
